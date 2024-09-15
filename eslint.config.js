@@ -13,6 +13,8 @@ export default [
             "comma-dangle": ["error", "never"], //melarang tanda (,) di akhir array/objek
             "use-isnan": "error", //mendeteksi penulisan NaN yang benar
             "no-var": "warn", //mendeteksi penulisan variable menggunakan var
+            "semi": ["warn", "always"], //mengoreksi codingan tanpa tanda (;)
+            "no-console": "warn" //mendeteksi penulisan console
         }
     }
 ];
