@@ -170,5 +170,26 @@ router.post('/calculate-calories', (req, res) => {
     return res.json({name, dailyCalories: dailyCalories.toFixed(2)});
 });
 
+router.post('/kalkulasipinjaman', (req, res) => {
+  const { jumlahPinjaman, bungaPertahun, jangkaWaktu } = req.body;
+
+  // Validasi input
+  if (jumlahPinjaman <= 0 || bungaPertahun <= 0 || jangkaWaktu <= 0) {
+      return res.status(400).json({ error: 'Input values must be greater than zero' });
+  }
+  
+  const bungaPerbulan = bungaPertahun / 100 / 12;
+  const totalBulan = jangkaWaktu * 12;
+  const biayaPerbulan = (jumlahPinjaman * bungaPerbulan) / (1 - Math.pow(1 + bungaPerbulan, -totalBulan));
+
+  // Kirimkan hasil
+  return res.json({
+    jumlahPinjaman,
+    bungaPertahun,
+    jangkaWaktu,
+    biayaPerbulan: biayaPerbulan.toFixed(2)
+  });
+});
+
 export default router;
 
