@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 
 router.get("/", (req, res) => {
-   res.send("Hello World!, ini adalah API Kelompok 5 LAGOS!");
+   return res.send("Hello World!, ini adalah API Kelompok 5 LAGOS!");
 });
 
 // Fungsi untuk menghitung kecepatan
@@ -16,7 +16,7 @@ router.get("/kecepatan", (req, res) => {
       } else {
          
          const kecepatan = parseInt(s) / parseInt(t);
-         res.json({
+         return res.json({
             "kecepatan": "jarak(s) m / waktu(t) detik",
             "Hasil": `${kecepatan} m/s`
          });
@@ -37,7 +37,7 @@ router.get("/rupiahToDollar", (req, res) => {
          return res.status(400).json({"ERROR": "Inputan/parameter harus berupa angka"});
       } else {
          const dollar = parseInt(rupiah) * conversionRate;
-         res.json({
+         return res.json({
             "konversi": "rupiah -> dollar",
             "Hasil": `Rp.${rupiah} = $${dollar.toFixed(2)}`
          });
@@ -55,7 +55,7 @@ router.get("/dollarToRupiah", (req, res) => {
          return res.status(400).json({"ERROR": "Inputan/parameter harus berupa angka"});
       } else {
          const rupiah = parseInt(dollar) / conversionRate;
-         res.json({
+         return res.json({
             "konversi": "dollar -> rupiah",
             "Hasil": `$${dollar} = Rp.${rupiah.toFixed(2)}`
          });
@@ -88,7 +88,7 @@ router.get("/beratBadan", (req, res) => {
             const heightInMeter = parseInt(tinggi) / 100;
             const BMI = parseInt(berat) / (heightInMeter * heightInMeter);
             const status = getStatusBB(BMI);
-            res.json({
+            return res.json({
                "Gender": "laki-laki",
                "Berat Badan Ideal": `${beratIdeal} kg`,
                "BMI": BMI,
@@ -99,7 +99,7 @@ router.get("/beratBadan", (req, res) => {
             const heightInMeter = parseInt(tinggi) / 100;
             const BMI = parseInt(berat) / (heightInMeter * heightInMeter);
             const status = getStatusBB(BMI);
-            res.json({
+            return res.json({
                "Gender": "perempuan",
                "Berat Badan Ideal": `${beratIdeal} kg`,
                "BMI": BMI,
@@ -130,13 +130,44 @@ router.get("/umur", (req, res) => {
             if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                age--; 
             };
-            res.json({
+            return res.json({
                "Tanggal Lahir": `${thn}-${bln}-${tgl}`,
                "Umur": `${age} tahun`
             });
          }
       }
    }
+});
+
+//API untuk menghitung kalori
+router.post('/calculate-calories', (req, res) => {
+   //rumus mencari kalori harian
+   const {name, gender, weight, height, age, activity } = req.body;
+
+   //validate
+   if (!name||!gender || !weight || !height || !age || !activity ) {
+      return res.status(400).json({ message: 'All fields are required: name,gender, weight, height, age, activity' });
+   }
+
+   // activity average 1.2 - 1.9
+   const activityValue = parseFloat(activity);
+    if (isNaN(activityValue) || activityValue < 1.2 || activityValue > 1.9) {
+        return res.status(400).json({ message: 'Activity must be a number between 1.2 and 1.9' });
+    }
+
+    const weightValue = parseInt(weight);
+    const heightValue = parseInt(height);
+    const ageValue = parseInt(age);
+   let dailyCalories;
+    if (gender === 'male') {
+        dailyCalories = (66.5 + (13.75 * weightValue) + (5.003 * heightValue) - (6.75 * ageValue)) * activityValue;
+    } else if (gender === 'female') {
+        dailyCalories = (655.1 + (9.563 * weightValue) + (1.850 * heightValue) - (4.676 * ageValue)) * activityValue;
+    } else {
+        return res.status(400).json({ message: 'Invalid gender. Must be "male" or "female".' });
+    }
+
+    return res.json({name, dailyCalories: dailyCalories.toFixed(2)});
 });
 
 export default router;
